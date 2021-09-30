@@ -1,0 +1,85 @@
+---
+title: "PACD II - Trabalho 1"
+subtitle: 'Métodos Estocásticos | Professora: Catarina Marques'
+author: 
+- Catarina Castanheira, 92478
+- João Martins, 93259
+- Joel Paula, 93392
+date: "29/09/2021"
+output:
+  html_document: default
+  pdf_document: default
+header-includes:
+  - \usepackage[sfdefault]{roboto}
+  - \renewcommand{\familydefault}{\sfdefault}
+  - \usepackage{titling}
+  - \pretitle{\par\vspace{50mm}\begin{center}
+  - \posttitle{\par\vspace{100mm}\end{center}}
+    \includegraphics[width=2in,height=2in]{rgb_iscte_pt_horizontal_positive.png}\LARGE\\}
+---
+
+<!-- get the required files from 3rd party sources -->
+
+<link href='http://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'> <!-- use the font -->
+
+```{=html}
+<style>
+  body {
+    font-family: 'Roboto', sans-serif;
+  }
+</style>
+```
+## \newpage
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Problema 1:
+
+> Pretende-se gerar 1000 números pseudo-aleatórios de uma variável aleatória com distribuição Binomial(n=6, p=0,5) pela soma de distribuições de Bernoulli. Explique que método de geração de NPA utilizou e implemente o algoritmo em R. Compare a proporção dos valores gerados com a distribuição teórica e interprete os resultados.
+
+=== TO DO: isto é mesmo este método? ===
+
+Usamos o método de transformação inversa para um exemplo discreto. Iremos usar uma soma de 6 Bernoulli B(1, 0,5), visto que a Binomial com n=6 corresponde a isso.
+
+```{r cars}
+k <- 1000 # Nº de v.a. em cada amostra
+n <- 6    # Nº de distribuições Bernoulli
+p <- 0.5  # Probabilidade
+
+x <- matrix(as.integer(runif(k*n) > p), nrow = k, ncol=n)
+y <- rowSums(x)
+# medidas:
+# mean(y)
+# var(y)
+# sd(y)
+# hist(y, probability = T)
+
+
+par(mfrow =c(1,2))
+
+plot(prop.table(table(y)), xlab = "x", ylab = "Densidade", lwd=8)
+points(dbinom(c(1:6), size=n, prob = p), type = "h", col = 2, lwd = 2)
+legend("topright", legend = c("Empírico", "Teórico"), lty = 1, col = c(1, 2))
+
+plot(ecdf(y), main="fdp B(6, 0.5)")
+lines(pbinom(c(1:6), size=n, prob=p), type = "s", col="red")
+legend("bottomright", legend = c("Empírico", "Teórico"), lty = 1, col = c(1, 2))
+
+# Medidas teóricas da distribuição:
+# μ=np  σ2=npq σ=sqrt(npq) 
+# Onde p é a probabilidade de sucesso e q = 1 - p.
+
+```
+
+Comparação:
+
+| Medida              |Distribuição v.a. B(6,0.5)  | Distribuição teórica      |
+|---------------------|----------------------------|---------------------------|
+| média ($\bar{X}$)   | `r mean(y)`                | `r n*p`                   |
+| variância ($S^2$)   | `r var(y)`                 | `r n*p*p`                 |
+| desvio padrão ($S$) | `r round(sd(y), 2)`        | `r round(sqrt(n*p*p), 2)` |
+
+TO DO: testes de qualidade?
+
