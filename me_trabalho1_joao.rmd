@@ -1,0 +1,42 @@
+{```{r}
+library(stringr)
+
+# TODO: desvio padrão tem de ser igual nas duas distribuições?
+# TODO: limpar comentários
+elephant_in_boa_mixture <- function(mu_a, mu_b, desv_pad = 1, p_a = 1/2, p_b = 1/2, n = 1000, xx_min = -6, xx_max = 6) {
+    set.seed(444)
+    
+    mu <- c(mu_a, mu_b) # parâmetro mu de cada normal
+    # "peso" de cada distribuição: p_a, p_b
+    k <- sample(1:2, size=n, replace=TRUE, prob=c(p_a, p_b))
+    m <- mu[k] # vector dim=n (mu_k1,...,mu_kn), elementos mu[1]=0 ou mu[2]=3
+    x <- rnorm(n, m, desv_pad) 
+    
+    par(mfrow = c(2, 1))
+    # plot da densidade da mistura dos NPA
+    plot(density(x), xlim = c(xx_min, xx_max), ylim = c(0, .5),
+    lwd = 3, xlab="x", main="", col = "grey20")
+    text(1.9, 0.05, str_glue("{n} NPA mistura"),col="grey20")
+
+    # fdp N(0,1)e N(3,1)
+    for (i in 1:2)
+        lines(density(rnorm(n, mu[i], desv_pad)),lty=2)
+    text(-2.5,.3, str_glue("fdp N({mu_a}, {desv_pad})"))
+    text(4.5,.3, str_glue("fdp N({mu_b}, {desv_pad})"))
+    # fx=1/3 N(0,1) + 2/3 N(3,1)
+    t <- seq(xx_min, xx_max, by = 0.1)
+    lines(t, p_a * dnorm(t, mu_a, desv_pad) + p_b * dnorm(t, mu_b, desv_pad), lwd = 1, col = "red")
+    text(0,.45, str_glue('fdp mistura fx = {p_a} N({mu_a}, {desv_pad}) + {p_b} N({mu_b}, {desv_pad})'), col="red")
+
+    # HISTOGRAMA DOS NPA MISTURA 1/3 N(0,1) + 2/3 N(3,1)
+    hist(x, prob = TRUE, main = NULL, ylim = c(0, 0.4), col = "grey20")
+    text(0,0.38, " HISTOGRAMA")
+    text(0,0.32,str_glue("{n} NPA mistura {p_a} N({mu_a}, {desv_pad}) + {p_b} N({mu_b}, {desv_pad})"))
+}
+
+elephant_in_boa_mixture(mu_a = 0, mu_b = 3)
+elephant_in_boa_mixture(mu_a = 0, mu_b = 3, p_a = 0.6, p_b = 0.4, xx_max = 9)
+
+
+
+```}
