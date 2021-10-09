@@ -1,14 +1,14 @@
 ---
-title: "Métodos Estocásticos - Trabalho 1"
-subtitle: 'Ciência de Dados - PL | Professora: Catarina Marques'
+title: "Modelação Estocástica - Trabalho 1"
+subtitle: 'Ciência de Dados - PL - 3º ano| Professora: Catarina Marques'
 author: 
 - Catarina Castanheira, 92478
 - João Martins, 93259
 - Joel Paula, 93392
-date: "03/10/2021"
+date: "09/10/2021"
 output:
-  html_document: default
   pdf_document: default
+  html_document: default
 header-includes:
   - \usepackage[sfdefault]{roboto}
   - \renewcommand{\familydefault}{\sfdefault}
@@ -67,22 +67,21 @@ p <- 0.5  # Probabilidade de sucesso
 
 x <- matrix(as.integer(runif(k*n) > p), nrow = k, ncol=n)
 y <- rowSums(x)
-# medidas:
-# mean(y)
-# var(y)
-# sd(y)
-# hist(y, probability = T)
 
 # escala gráficos
 x.g <- c(0:n)
 
 par(mfrow = c(2, 1),mar=c(2,2,1,1))
 
+# gráfico distribuição empírica
 plot(prop.table(table(y)), xlab = "x", ylab = "P[X]", lwd=8)
+# gráfico distribuição teórica
 points(dbinom(x.g, size=n, prob = p) ~ x.g, type = "h", col = 2, lwd = 2)
 legend("topright", legend = c("Empírico", "Teórico"), lty = 1, col = c(1, 2))
 
+# Função de distribuição empírica
 plot(ecdf(y), main="fdp B(6, 0.5)")
+# Função de distribuição teórica
 lines(pbinom(x.g, size=n, prob=p)  ~ x.g, type = "s", col="red")
 legend("bottomright", legend = c("Empírico", "Teórico"), lty = 1, col = c(1, 2))
 
@@ -90,17 +89,15 @@ legend("bottomright", legend = c("Empírico", "Teórico"), lty = 1, col = c(1, 2
 # avg=np  S^2=npq S=sqrt(npq) 
 # Onde p é a probabilidade de sucesso e q = 1 - p.
 
-# Teste de autocorrelação
-# acf(y)
 ```
 
 Comparação:
 
 | Medida        |Distribuição     B(6, 0.5)         | Distribuição teórica                     |
 |---------------|-----------------------------------|------------------------------------------|
-| média         | $\bar{X}$ = `r round(mean(y), 2)` | $\mu$ = `r n*p`                          |
-| variância     | $S^2$ = `r round(var(y), 2)`      | $\sigma^2$ = `r n*p*(1-p)`               |
-| desvio padrão | $S$ = `r round(sd(y), 2)`         | $\sigma$ = `r round(sqrt(n*p*(1-p)), 2)` |
+| Média         | $\bar{X}$ = `r round(mean(y), 2)` | $\mu$ = `r n*p`                          |
+| Variância     | $S^2$ = `r round(var(y), 2)`      | $\sigma^2$ = `r n*p*(1-p)`               |
+| Desvio Padrão | $S$ = `r round(sd(y), 2)`         | $\sigma$ = `r round(sqrt(n*p*(1-p)), 2)` |
 
 Podemos observar graficamente que a distribuição obtida segue de muito perto a distribuição teórica.
 
@@ -119,7 +116,7 @@ do “Elefante dentro da Jibóia” do Principezinho de Saint-Exupéry.
 > Compare a distribuição empírica dos valores gerados com a distribuição teórica e interprete os
 resultados.
 
-Vamos usar uma mistura de duas normais, de maneira a ter uma que crie a região da cabeça do elefante e outra que ajude a criar o dorso do elefante.
+Vamos usar uma mistura de duas Normais, de maneira a ter uma que crie a região da cabeça do elefante e outra que ajude a criar o dorso do elefante.
 
 ```{r}
 elephant_in_boa_mixture <- function(mu_a, mu_b, 
@@ -139,25 +136,29 @@ elephant_in_boa_mixture <- function(mu_a, mu_b,
     text(1.9, 0.05, str_glue("{n} NPA mistura"),col="grey20")
 
     # fdp de cada normal
-    for (i in 1:2)
-        lines(density(rnorm(n, mu[i], desv_pad)),lty=2)
-    text(-2.5,.3, str_glue("fdp N({mu_a}, {desv_pad})"))
-    text(4.5,.3, str_glue("fdp N({mu_b}, {desv_pad})"))
+    for (i in 1:2) {
+      lines(density(rnorm(n, mu[i], desv_pad)),lty=2)
+      txt <- str_glue("fdp N({mu[i]}, {desv_pad})")
+      text(mu[i], dnorm(mu[i], mu[i], desv_pad)+0.05, txt, cex=abs(mu_b-mu_a)/3)
+    }
+    # text(4.7,.3, str_glue("fdp N({mu_b}, {desv_pad})"))
     
     # curva distribuição mistura teórica
     # fx = p_a N(mu_a, desv_pad) + p_b N(mu_n, desv_pad)
     t <- seq(xx_min, xx_max, by = 0.1)
     lines(t, p_a * dnorm(t, mu_a, desv_pad) + p_b * dnorm(t, mu_b, desv_pad), 
           lwd = 1, col = "red")
-    text(0,.45, 
-     str_glue('fdp mistura fx = {p_a} N({mu_a}, {desv_pad}) + {p_b} N({mu_b}, {desv_pad})'), 
-     col="red")
+    txt <- str_glue('fdp mistura fx = {p_a} x N({mu_a}, {desv_pad}) + {p_b} x N({mu_b}, {desv_pad})')
+    text(mu_b-mu_a, 
+         max(dnorm(mu_a, mu_a, desv_pad)*p_a, dnorm(mu_b, mu_b, desv_pad)*p_b)+0.05, 
+         txt, 
+         col="red")
 
     # HISTOGRAMA DOS NPA MISTURA
     hist(x, prob = TRUE, main = NULL, ylim = c(0, 0.7), col = "grey")
     text(0,0.50, " HISTOGRAMA")
     text(0,0.38, 
-     str_glue("{n} NPA mistura {p_a} N({mu_a}, {desv_pad}) + {p_b} N({mu_b}, {desv_pad})"))
+     str_glue("{n} NPA mistura {p_a} x N({mu_a}, {desv_pad}) + {p_b} x N({mu_b}, {desv_pad})"))
     
 }
 
@@ -176,9 +177,11 @@ elephant_in_boa_mixture(mu_a = 0, mu_b = 3, p_a = 0.6, p_b = 0.4, xx_max = 9)
 
 ```
 
-Verificamos que a curva anterior está muito ténue, por isso:
- 1 - aproximamos a média da segunda normal à primeira;
- 2 - diminuímos o achatamento das curvas, diminuindo o desvio padrão para 0.7.
+Verificamos que a curva anterior não está semelhante à da imagem, por isso:
+
+ 1. aproximamos a média da segunda normal à primeira, com o objectivo de aproximar o cume que representa o dorso ao que representa a cabeça do elefante;
+ 
+ 2. diminuímos o achatamento das curvas, diminuindo o desvio padrão para 0.7.
  
 ```{r}
 elephant_in_boa_mixture(mu_a = 0, mu_b = 2, desv_pad = 0.7, 
