@@ -31,11 +31,7 @@ header-includes:
 ```
 \newpage
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-library(stringr)
 
-```
 
 # Problema 1:
 
@@ -58,7 +54,8 @@ S = X_1 + X_2 + ... + X_6 \cap B(n=6, p=0.5)
 \end{split}
 $$
 
-```{r cars}
+
+```r
 set.seed(444)
 
 
@@ -85,20 +82,23 @@ plot(ecdf(y), main="fdp B(6, 0.5)")
 # Função de distribuição teórica
 lines(pbinom(x.g, size=n, prob=p)  ~ x.g, type = "s", col="red")
 legend("bottomright", legend = c("Empírico", "Teórico"), lty = 1, col = c(1, 2))
+```
 
+![](Trabalho-1_files/figure-html/cars-1.png)<!-- -->
+
+```r
 # Medidas teóricas da distribuição:
 # avg=np  S^2=npq S=sqrt(npq) 
 # Onde p é a probabilidade de sucesso e q = 1 - p.
-
 ```
 
 Comparação:
 
 | Medida        |Distribuição     B(6, 0.5)         | Distribuição teórica                     |
 |---------------|-----------------------------------|------------------------------------------|
-| Média         | $\bar{X}$ = `r round(mean(y), 2)` | $\mu$ = `r n*p`                          |
-| Variância     | $S^2$ = `r round(var(y), 2)`      | $\sigma^2$ = `r n*p*(1-p)`               |
-| Desvio Padrão | $S$ = `r round(sd(y), 2)`         | $\sigma$ = `r round(sqrt(n*p*(1-p)), 2)` |
+| Média         | $\bar{X}$ = 2.97 | $\mu$ = 3                          |
+| Variância     | $S^2$ = 1.49      | $\sigma^2$ = 1.5               |
+| Desvio Padrão | $S$ = 1.22         | $\sigma$ = 1.22 |
 
 Podemos observar graficamente que a distribuição obtida segue de muito perto a distribuição teórica.
 
@@ -119,7 +119,8 @@ resultados.
 
 Vamos usar uma mistura de duas Normais, de maneira a ter uma que crie a região da cabeça do elefante e outra que ajude a criar o dorso do elefante.
 
-```{r}
+
+```r
 elephant_in_boa_mixture <- function(mu_a, mu_b, 
                             desv_pad = 1, p_a = 1/2, p_b = 1/2, 
                             n = 10000, xx_min = -6, xx_max = 6) {
@@ -162,21 +163,24 @@ elephant_in_boa_mixture <- function(mu_a, mu_b,
      str_glue("{n} NPA mistura {p_a} x N({mu_a}, {desv_pad}) + {p_b} x N({mu_b}, {desv_pad})"))
     
 }
-
 ```
 
 Começamos por gerar uma mistura de duas normais com proporções iguais, experimentando com médias de 0 e 3, respetivamente:
-```{r}
-elephant_in_boa_mixture(mu_a = 0, mu_b = 3)
 
+```r
+elephant_in_boa_mixture(mu_a = 0, mu_b = 3)
 ```
+
+![](Trabalho-1_files/figure-html/unnamed-chunk-2-1.png)<!-- -->
 
 
 Verificamos que a primeira curva normal deveria ter um peso superior, por isso editamos o parâmetro respetivo, dando um peso de 0.6  à curva da "cabeça do elefante":
-```{r}
-elephant_in_boa_mixture(mu_a = 0, mu_b = 3, p_a = 0.6, p_b = 0.4, xx_max = 9)
 
+```r
+elephant_in_boa_mixture(mu_a = 0, mu_b = 3, p_a = 0.6, p_b = 0.4, xx_max = 9)
 ```
+
+![](Trabalho-1_files/figure-html/unnamed-chunk-3-1.png)<!-- -->
 
 Verificamos que a curva anterior não está semelhante à da imagem, por isso:
 
@@ -184,12 +188,13 @@ Verificamos que a curva anterior não está semelhante à da imagem, por isso:
  
  2. diminuímos o achatamento das curvas, diminuindo o desvio padrão para 0.7.
  
-```{r}
+
+```r
 elephant_in_boa_mixture(mu_a = 0, mu_b = 2, desv_pad = 0.7, 
                         p_a = 0.6, p_b = 0.4, xx_max = 9)
-
-
 ```
+
+![](Trabalho-1_files/figure-html/unnamed-chunk-4-1.png)<!-- -->
 
 Podemos observar que as densidades obtidas seguem a densidade teórica. Por outro lado, manipulando as duas médias foi possível definir o afastamento entre os dois cumes, ao mesmo tempo que manipulando os "pesos" da mistura conseguimos controlar a altura de cada um dos cumes.
 
